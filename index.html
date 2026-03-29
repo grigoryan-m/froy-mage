@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фройские Маги — Том II</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080812;--panel:#0e0e1f;--panel2:#131328;--accent:#7b5ea7;--accent2:#a67fd1;--gold:#c9a84c;--gold-l:#e8c96e;--gold-d:#8a6a20;--text:#e8e0f0;--text-dim:#7a6f90;--text-mid:#b0a0c8;--life:#e05c5c;--line:#2a1f45;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 8%  15%,rgba(255,255,255,.18) 0%,transparent 100%),
+    radial-gradient(1px 1px at 92% 8%, rgba(255,255,255,.14) 0%,transparent 100%),
+    radial-gradient(1px 1px at 35% 72%,rgba(255,255,255,.10) 0%,transparent 100%),
+    radial-gradient(1px 1px at 78% 55%,rgba(255,255,255,.12) 0%,transparent 100%),
+    radial-gradient(1px 1px at 55% 30%,rgba(255,255,255,.08) 0%,transparent 100%),
+    radial-gradient(1px 1px at 20% 88%,rgba(255,255,255,.09) 0%,transparent 100%),
+    radial-gradient(1px 1px at 68% 22%,rgba(255,255,255,.11) 0%,transparent 100%),
+    radial-gradient(ellipse 70% 50% at 50% 50%,rgba(123,94,167,.07) 0%,transparent 60%);}
+
+.menu-wrap{position:relative;z-index:1;width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;gap:40px;}
+
+/* TITLE */
+.title-block{text-align:center;}
+.title-deco{width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 18px;}
+.title-main{font-family:'Cinzel',serif;font-size:clamp(22px,6vw,34px);font-weight:700;letter-spacing:6px;color:var(--gold-l);text-shadow:0 0 40px rgba(201,168,76,.35);text-transform:uppercase;}
+.title-sub{font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;color:var(--accent2);margin-top:8px;font-style:italic;}
+.title-deco-btm{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--accent2),transparent);margin:16px auto 0;}
+
+/* NAV CARDS */
+.nav-cards{display:flex;flex-direction:column;gap:12px;width:100%;}
+.nav-card{display:flex;align-items:center;gap:18px;padding:20px 24px;border-radius:10px;border:1px solid var(--line);background:var(--panel);text-decoration:none;color:var(--text);transition:all .25s;cursor:pointer;position:relative;overflow:hidden;}
+.nav-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(123,94,167,.05),transparent);opacity:0;transition:opacity .25s;}
+.nav-card:hover{border-color:var(--accent);transform:translateX(4px);}
+.nav-card:hover::before{opacity:1;}
+.nav-card:hover .nav-icon{color:var(--gold-l);}
+.nav-card:hover .nav-arrow{opacity:1;transform:translateX(0);}
+.nav-icon{font-size:28px;flex-shrink:0;transition:color .2s;}
+.nav-text{flex:1;}
+.nav-title{font-family:'Cinzel',serif;font-size:14px;font-weight:700;letter-spacing:2px;color:var(--text);margin-bottom:4px;}
+.nav-desc{font-size:12px;color:var(--text-dim);font-style:italic;line-height:1.4;}
+.nav-arrow{font-size:18px;color:var(--accent2);opacity:0;transform:translateX(-6px);transition:all .2s;flex-shrink:0;}
+.nav-badge{position:absolute;top:10px;right:12px;font-family:'Cinzel',serif;font-size:7px;letter-spacing:1.5px;padding:2px 8px;border-radius:10px;border:1px solid var(--gold-d);color:var(--gold);background:rgba(201,168,76,.08);}
+
+/* DIVIDER */
+.nav-divider{width:100%;height:1px;background:var(--line);margin:4px 0;}
+
+/* FOOTER */
+.menu-footer{text-align:center;font-size:10px;color:var(--text-dim);font-style:italic;letter-spacing:1px;}
+
+@media(max-width:400px){.nav-card{padding:16px 18px;}.nav-icon{font-size:22px;}}
+</style>
+</head>
+<body>
+<div class="menu-wrap">
+
+  <div class="title-block">
+    <div class="title-deco"></div>
+    <div class="title-main">Фройская Магия</div>
+    <div class="title-sub">Том II &nbsp;•&nbsp; Система магов-гномов</div>
+    <div class="title-deco-btm"></div>
+  </div>
+
+  <nav class="nav-cards">
+
+    <a class="nav-card" href="characters.html">
+      <span class="nav-icon">⚔</span>
+      <div class="nav-text">
+        <div class="nav-title">Персонажи</div>
+        <div class="nav-desc">Список магов, листы персонажей, импорт и экспорт</div>
+      </div>
+      <span class="nav-arrow">›</span>
+      <span class="nav-badge" id="chars-badge" style="display:none"></span>
+    </a>
+
+    <a class="nav-card" href="spells.html">
+      <span class="nav-icon">📖</span>
+      <div class="nav-text">
+        <div class="nav-title">Книга заклинаний</div>
+        <div class="nav-desc">Все заклинания с поиском, фильтрами и отправкой на лист</div>
+      </div>
+      <span class="nav-arrow">›</span>
+    </a>
+
+  </nav>
+
+  <div class="menu-footer">✦ &nbsp; Сохранения хранятся в этом браузере &nbsp; ✦</div>
+
+</div>
+
+<script>
+// Show character count badge
+try {
+  const idx = JSON.parse(localStorage.getItem('froyskyy_chars_index')) || [];
+  if(idx.length) {
+    const badge = document.getElementById('chars-badge');
+    badge.textContent = idx.length;
+    badge.style.display = '';
+  }
+} catch(e) {}
+</script>
+</body>
+</html>

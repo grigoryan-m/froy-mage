@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вики Заклинаний — Фройские Маги</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080812;--panel:#0e0e1f;--panel2:#131328;--panel3:#1a1a35;--accent:#7b5ea7;--accent2:#a67fd1;--gold:#c9a84c;--gold-l:#e8c96e;--gold-d:#8a6a20;--text:#e8e0f0;--text-dim:#7a6f90;--text-mid:#b0a0c8;--life:#e05c5c;--line:#2a1f45;--trauma-death:#e05c5c;--trauma-loss:#9b7fe8;--trauma-humil:#e8934c;--trauma-ctrl:#5b8dee;--trauma-attack:#4cbb8a;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;min-height:100vh;padding:24px 16px 120px;background-image:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(123,94,167,.08) 0%,transparent 70%);}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(1px 1px at 15% 20%,rgba(255,255,255,.15) 0%,transparent 100%),radial-gradient(1px 1px at 70% 10%,rgba(255,255,255,.12) 0%,transparent 100%),radial-gradient(1px 1px at 40% 60%,rgba(255,255,255,.08) 0%,transparent 100%),radial-gradient(1px 1px at 85% 40%,rgba(255,255,255,.10) 0%,transparent 100%);}
+.wrap{position:relative;max-width:900px;margin:0 auto;z-index:1;}
+.header{text-align:center;padding:32px 20px 24px;border:1px solid var(--accent);border-radius:10px;background:var(--panel);margin-bottom:24px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(123,94,167,.12) 0%,transparent 70%);}
+.header-deco{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:240px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.header h1{font-family:'Cinzel',serif;font-size:22px;font-weight:700;letter-spacing:5px;color:var(--gold-l);text-shadow:0 0 30px rgba(201,168,76,.4);position:relative;}
+.header-sub{font-size:12px;color:var(--accent2);letter-spacing:3px;margin-top:6px;font-style:italic;position:relative;}
+.back-link{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-decoration:none;border:1px solid var(--line);padding:6px 12px;border-radius:5px;transition:all .2s;z-index:1;}
+.back-link:hover{color:var(--gold);border-color:var(--gold-d);}
+.controls{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;flex-direction:column;gap:14px;}
+.controls-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:200px;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:14px;pointer-events:none;}
+#search-input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:9px 12px 9px 36px;color:var(--text);font-family:'Crimson Pro',serif;font-size:14px;outline:none;transition:border-color .2s;}
+#search-input:focus{border-color:var(--accent);}
+#search-input::placeholder{color:var(--text-dim);font-style:italic;}
+.sort-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.sort-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-dim);}
+.sort-btn{background:var(--panel2);border:1px solid var(--line);color:var(--text-mid);font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;padding:7px 14px;border-radius:5px;cursor:pointer;transition:all .15s;}
+.sort-btn:hover{border-color:var(--accent2);}
+.sort-btn.active{border-color:var(--gold);color:var(--gold-l);background:rgba(201,168,76,.08);}
+.sort-btn.active.desc::after{content:' ↓';}
+.sort-btn.active.asc::after{content:' ↑';}
+.trauma-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.filter-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-dim);flex-shrink:0;}
+.trauma-btn{border:1px solid transparent;border-radius:20px;padding:4px 14px;font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;cursor:pointer;transition:all .2s;background:var(--panel2);}
+.trauma-btn[data-t="смерть"]    {color:var(--trauma-death); border-color:var(--trauma-death)33;}
+.trauma-btn[data-t="утрата"]    {color:var(--trauma-loss);  border-color:var(--trauma-loss)33;}
+.trauma-btn[data-t="унижение"]  {color:var(--trauma-humil); border-color:var(--trauma-humil)33;}
+.trauma-btn[data-t="контроль"]  {color:var(--trauma-ctrl);  border-color:var(--trauma-ctrl)33;}
+.trauma-btn[data-t="нападение"] {color:var(--trauma-attack);border-color:var(--trauma-attack)33;}
+.trauma-btn.active[data-t="смерть"]    {background:rgba(224,92,92,.15);   border-color:var(--trauma-death);}
+.trauma-btn.active[data-t="утрата"]    {background:rgba(155,127,232,.15); border-color:var(--trauma-loss);}
+.trauma-btn.active[data-t="унижение"]  {background:rgba(232,147,76,.15);  border-color:var(--trauma-humil);}
+.trauma-btn.active[data-t="контроль"]  {background:rgba(91,141,238,.15);  border-color:var(--trauma-ctrl);}
+.trauma-btn.active[data-t="нападение"] {background:rgba(76,187,138,.15);  border-color:var(--trauma-attack);}
+.clear-filters{font-family:'Crimson Pro',serif;font-size:11px;color:var(--text-dim);cursor:pointer;text-decoration:underline;text-underline-offset:3px;transition:color .15s;margin-left:4px;}
+.clear-filters:hover{color:var(--life);}
+.stats-bar{display:flex;align-items:center;gap:16px;padding:0 4px;margin-bottom:12px;}
+.stats-count{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--text-dim);}
+.stats-count span{color:var(--gold-l);}
+#spells-container{display:flex;flex-direction:column;gap:8px;}
+.spell-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;transition:border-color .2s;}
+.spell-card:hover{border-color:var(--accent);}
+.spell-card.expanded{border-color:var(--accent);}
+.spell-card.selected{border-color:#4cbb8a;box-shadow:0 0 12px rgba(76,187,138,.2);}
+.spell-header{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none;}
+.spell-trauma-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.spell-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--text);flex:1;letter-spacing:.5px;}
+.spell-trauma-badge{font-family:'Cinzel',serif;font-size:7.5px;letter-spacing:1.5px;padding:3px 10px;border-radius:12px;border:1px solid transparent;flex-shrink:0;text-transform:uppercase;}
+.spell-mana{font-family:'Cinzel',serif;font-size:10px;color:var(--gold);border:1px solid var(--gold-d);border-radius:10px;padding:2px 10px;flex-shrink:0;}
+.spell-chevron{color:var(--text-dim);font-size:12px;transition:transform .25s;flex-shrink:0;}
+.spell-card.expanded .spell-chevron{transform:rotate(180deg);}
+.spell-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.spell-card.expanded .spell-body{max-height:500px;}
+.spell-body-inner{padding:0 16px 16px;border-top:1px solid var(--line);}
+.spell-desc{font-size:14px;line-height:1.75;color:var(--text-mid);padding-top:12px;}
+.spell-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center;}
+.btn-copy{background:none;border:1px solid var(--line);color:var(--text-dim);font-family:'Cinzel',serif;font-size:8px;letter-spacing:1.5px;padding:6px 14px;border-radius:5px;cursor:pointer;transition:all .2s;}
+.btn-copy:hover{border-color:var(--gold-d);color:var(--gold);}
+.btn-copy.copied{border-color:#4cbb8a;color:#4cbb8a;}
+/* SELECT TOGGLE BUTTON */
+.btn-select{font-family:'Cinzel',serif;font-size:8px;letter-spacing:1.5px;padding:6px 16px;border-radius:5px;cursor:pointer;transition:all .2s;border:1px solid var(--accent);background:linear-gradient(135deg,rgba(123,94,167,.3),rgba(91,141,238,.2));color:var(--text);}
+.btn-select:hover{background:rgba(123,94,167,.45);}
+.btn-select.selected-state{border-color:#4cbb8a;background:rgba(76,187,138,.18);color:#4cbb8a;}
+.inline-roll{display:inline-block;background:rgba(76,187,138,.12);border:1px solid rgba(76,187,138,.35);border-radius:3px;padding:0 4px;color:#7ecba1;cursor:default;white-space:nowrap;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-dim);font-style:italic;font-size:15px;}
+/* FLOATING BASKET */
+#basket-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;justify-content:center;padding:16px 20px;background:linear-gradient(to top,rgba(8,8,18,.98),rgba(8,8,18,.7));transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+#basket-bar.visible{transform:translateY(0);}
+.basket-inner{display:flex;align-items:center;gap:16px;background:var(--panel3);border:1px solid var(--accent);border-radius:12px;padding:14px 22px;box-shadow:0 0 40px rgba(123,94,167,.3);max-width:600px;width:100%;}
+.basket-count{font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:var(--accent2);flex:1;}
+.basket-count span{color:var(--gold-l);font-size:16px;margin-right:4px;}
+.basket-send{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;padding:10px 24px;border-radius:8px;border:1px solid #4cbb8a;background:rgba(76,187,138,.2);color:#4cbb8a;cursor:pointer;transition:all .2s;}
+.basket-send:hover{background:rgba(76,187,138,.35);}
+.basket-clear{font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;color:var(--text-dim);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;transition:color .15s;}
+.basket-clear:hover{color:var(--life);}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel3);border:1px solid var(--accent);border-radius:8px;padding:10px 22px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--gold-l);opacity:0;transition:all .3s;pointer-events:none;z-index:200;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+@media(max-width:600px){.spell-trauma-badge{display:none;}.controls-row{flex-direction:column;align-items:stretch;}.sort-wrap{justify-content:flex-end;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="header">
+  <a class="back-link" href="menu.html">← Меню</a>
+  <div class="header-deco"></div>
+  <h1>КНИГА ЗАКЛИНАНИЙ</h1>
+  <div class="header-sub">Фройская Магия &nbsp;•&nbsp; Том II</div>
+</div>
+<div class="controls">
+  <div class="controls-row">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Поиск по названию заклинания…" oninput="applyFilters()">
+    </div>
+    <div class="sort-wrap">
+      <span class="sort-label">СОРТ. ПО МАНЕ</span>
+      <button class="sort-btn" id="sort-btn" onclick="toggleSort()">Мана</button>
+    </div>
+  </div>
+  <div class="trauma-filters">
+    <span class="filter-label">ТРАВМА:</span>
+    <button class="trauma-btn" data-t="смерть"    onclick="toggleTrauma(this)">СМЕРТЬ</button>
+    <button class="trauma-btn" data-t="утрата"    onclick="toggleTrauma(this)">УТРАТА</button>
+    <button class="trauma-btn" data-t="унижение"  onclick="toggleTrauma(this)">УНИЖЕНИЕ</button>
+    <button class="trauma-btn" data-t="контроль"  onclick="toggleTrauma(this)">КОНТРОЛЬ</button>
+    <button class="trauma-btn" data-t="нападение" onclick="toggleTrauma(this)">НАПАДЕНИЕ</button>
+    <span class="clear-filters" onclick="clearFilters()">сбросить</span>
+  </div>
+</div>
+<div class="stats-bar">
+  <div class="stats-count">Показано: <span id="count-shown">0</span> / <span id="count-total">0</span></div>
+</div>
+<div id="spells-container"></div>
+<div id="toast"></div>
+</div>
+
+<!-- FLOATING BASKET -->
+<div id="basket-bar">
+  <div class="basket-inner">
+    <div class="basket-count"><span id="basket-num">0</span>заклинаний выбрано</div>
+    <button class="basket-send" onclick="sendBasketToSheet()">→ Отправить на лист</button>
+    <button class="basket-clear" onclick="clearBasket()">очистить</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="sheets.js"></script>
+<script>
+const TRAUMA_COLOR={
+  'смерть':  {color:'#e05c5c',bg:'rgba(224,92,92,.12)'},
+  'утрата':  {color:'#9b7fe8',bg:'rgba(155,127,232,.12)'},
+  'унижение':{color:'#e8934c',bg:'rgba(232,147,76,.12)'},
+  'контроль':{color:'#5b8dee',bg:'rgba(91,141,238,.12)'},
+  'нападение':{color:'#4cbb8a',bg:'rgba(76,187,138,.12)'},
+};
+let allSpells=[];
+let sortDir=null;
+let activeTraumas=new Set();
+const SPELL_ADDED_KEY='froyskyy_pending_spell';
+
+// ── BASKET (multiselect) ──────────────────────────────────────────────────────
+const basket=new Map(); // key = spell name, value = spell object
+function toggleSelect(btn,sp){
+  const key=sp.name;
+  if(basket.has(key)){
+    basket.delete(key);
+    btn.textContent='+ В лист персонажа';
+    btn.classList.remove('selected-state');
+    btn.closest('.spell-card').classList.remove('selected');
+  } else {
+    basket.set(key,sp);
+    btn.textContent='✓ Выбрано';
+    btn.classList.add('selected-state');
+    btn.closest('.spell-card').classList.add('selected');
+  }
+  updateBasketBar();
+}
+function updateBasketBar(){
+  const bar=document.getElementById('basket-bar');
+  const num=document.getElementById('basket-num');
+  num.textContent=basket.size+' ';
+  if(basket.size>0)bar.classList.add('visible');
+  else bar.classList.remove('visible');
+}
+function clearBasket(){
+  basket.clear();
+  // reset all btn-select buttons
+  document.querySelectorAll('.btn-select').forEach(b=>{b.textContent='+ В лист персонажа';b.classList.remove('selected-state');});
+  document.querySelectorAll('.spell-card.selected').forEach(c=>c.classList.remove('selected'));
+  updateBasketBar();
+}
+function sendBasketToSheet(){
+  if(!basket.size)return;
+  const arr=[...basket.values()].map(sp=>({name:sp.name,trauma:sp.trauma,mana:String(sp.mana),desc:sp.desc}));
+  try{
+    localStorage.setItem(SPELL_ADDED_KEY,JSON.stringify(arr));
+    showToast(`${arr.length} заклинаний отправлено! Откройте лист персонажа.`);
+    clearBasket();
+  }catch(e){showToast('Ошибка: localStorage недоступен');}
+}
+
+// ── LOAD FROM GOOGLE SHEETS ───────────────────────────────────────────────────
+async function loadSpells(){
+  const container=document.getElementById('spells-container');
+  container.innerHTML='<div class="empty-state" id="loading-state">⟳ Загружаем заклинания из базы данных...</div>';
+  try{
+    const rows=await sheetsGet('spells');
+    allSpells=rows.map(r=>({
+      name:   r.name    || '',
+      trauma: (r.trauma || '').toLowerCase(),
+      mana:   parseInt(r.mana) || 0,
+      desc:   r.desc    || '',
+    })).filter(r=>r.name);
+    if(!allSpells.length) throw new Error('Таблица пуста');
+  }catch(e){
+    allSpells=[];
+    container.innerHTML=`<div class="empty-state">
+      ⚠ Не удалось загрузить заклинания.<br>
+      <span style="font-size:12px;opacity:.7">${escHtml(e.message)}</span><br>
+      <span style="font-size:11px;opacity:.5;margin-top:6px;display:block;">
+        Проверь config.js — API ключ и ID таблицы должны быть заполнены
+      </span>
+    </div>`;
+    return;
+  }
+  renderSpells(allSpells);
+  document.getElementById('count-total').textContent=allSpells.length;
+  document.getElementById('count-shown').textContent=allSpells.length;
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+
+loadSpells();
+</script>
+</body>
+</html>
+function renderSpells(spells){
+  const c=document.getElementById('spells-container');c.innerHTML='';
+  if(!spells.length){c.innerHTML='<div class="empty-state">Заклинания не найдены.</div>';document.getElementById('count-shown').textContent=0;return;}
+  spells.forEach(sp=>{
+    const tc=TRAUMA_COLOR[sp.trauma]||{color:'#a67fd1',bg:'rgba(166,127,209,.12)'};
+    const inBasket=basket.has(sp.name);
+    const card=document.createElement('div');
+    card.className='spell-card'+(inBasket?' selected':'');
+    const descHtml=renderDesc(sp.desc);
+    card.innerHTML=`
+      <div class="spell-header" onclick="toggleCard(this.closest('.spell-card'))">
+        <div class="spell-trauma-dot" style="background:${tc.color};box-shadow:0 0 6px ${tc.color}88;"></div>
+        <div class="spell-name">${escHtml(sp.name)}</div>
+        <div class="spell-trauma-badge" style="color:${tc.color};border-color:${tc.color}44;background:${tc.bg};">${sp.trauma}</div>
+        <div class="spell-mana">⟡ ${sp.mana}</div>
+        <div class="spell-chevron">▼</div>
+      </div>
+      <div class="spell-body">
+        <div class="spell-body-inner">
+          <div class="spell-desc">${descHtml}</div>
+          <div class="spell-actions">
+            <button class="btn-copy" onclick="copySpell(event,'${escAttr(sp.name)}','${escAttr(sp.trauma)}','${sp.mana}','${escAttr(sp.desc)}')">⎘ Копировать строку</button>
+            <button class="btn-select${inBasket?' selected-state':''}">${inBasket?'✓ Выбрано':'+ В лист персонажа'}</button>
+          </div>
+        </div>
+      </div>`;
+    // Attach select toggle after DOM insertion
+    card.querySelector('.btn-select').addEventListener('click',function(){toggleSelect(this,sp);});
+    c.appendChild(card);
+  });
+  document.getElementById('count-shown').textContent=spells.length;
+}
+
+function renderDesc(desc){
+  return desc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\[([^\]]+)\]/g,'<span class="inline-roll">[$1]</span>');
+}
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(s){return(s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;');}
+function toggleCard(card){card.classList.toggle('expanded');}
+
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+function toggleTrauma(btn){btn.classList.toggle('active');activeTraumas.has(btn.dataset.t)?activeTraumas.delete(btn.dataset.t):activeTraumas.add(btn.dataset.t);applyFilters();}
+function clearFilters(){document.querySelectorAll('.trauma-btn.active').forEach(b=>b.classList.remove('active'));activeTraumas.clear();document.getElementById('search-input').value='';sortDir=null;updateSortBtn();applyFilters();}
+function toggleSort(){sortDir=sortDir==='asc'?'desc':'asc';updateSortBtn();applyFilters();}
+function updateSortBtn(){const b=document.getElementById('sort-btn');b.className='sort-btn'+(sortDir?' active '+sortDir:'');}
+function applyFilters(){
+  const q=document.getElementById('search-input').value.trim().toLowerCase();
+  let f=allSpells.filter(sp=>(!q||sp.name.toLowerCase().includes(q))&&(activeTraumas.size===0||activeTraumas.has(sp.trauma)));
+  if(sortDir==='asc')f=[...f].sort((a,b)=>a.mana-b.mana);
+  else if(sortDir==='desc')f=[...f].sort((a,b)=>b.mana-a.mana);
+  renderSpells(f);
+}
+
+// ── COPY ──────────────────────────────────────────────────────────────────────
+function copySpell(evt,name,trauma,mana,desc){
+  const line=`SPELL::${name}::${trauma}::${mana}::${desc}`;
+  navigator.clipboard.writeText(line).then(()=>{
+    const btn=evt.currentTarget;btn.textContent='✓ Скопировано';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='⎘ Копировать строку';btn.classList.remove('copied');},2000);
+  }).catch(()=>showToast('Не удалось скопировать'));
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+
+loadSpells();
+</script>
+</body>
+</html>
