@@ -24,6 +24,15 @@ async function fbSet(path, value) {
     });
   } catch(e) {}
 }
+async function fbUpdate(path, value) {
+  try {
+    await fetch(`${FB_BASE}/${path}.json`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(value),
+    });
+  } catch(e) {}
+}
 
 // ── SSE listener (Firebase streaming) ────────────────────────────────────────
 // Используется только для пати — мгновенная реакция
@@ -215,8 +224,13 @@ async function refreshPartyPanel(myUuid) {
 
     const card = document.createElement('div');
     card.className = 'party-card' + (isMe ? ' party-me' : '');
+    card.dataset.uuid = m.uuid;
+    card.dataset.name = name;
     card.innerHTML = `
-      <div class="party-card-name">${escHtml(name)}${isMe ? ' <span style="font-size:8px;color:var(--accent2);font-family:Cinzel,serif;letter-spacing:1px;">(вы)</span>' : ''}</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+        <div class="party-card-name" style="flex:1;">${escHtml(name)}${isMe ? ' <span style="font-size:8px;color:var(--accent2);font-family:Cinzel,serif;letter-spacing:1px;">(вы)</span>' : ''}</div>
+        ${!isMe ? `<button onclick="openSendModal(null,'${m.uuid}','${name.replace(/'/g,'&#39;')}')" title="Передать предмет" style="background:none;border:1px solid #4cbb8a44;color:#4cbb8a;font-family:Cinzel,serif;font-size:8px;letter-spacing:1px;padding:3px 8px;border-radius:4px;cursor:pointer;transition:all .15s;flex-shrink:0;" onmouseover="this.style.background='rgba(76,187,138,.12)'" onmouseout="this.style.background='none'">→ передать</button>` : ''}
+      </div>
       ${player ? `<div class="party-card-player">${escHtml(player)}</div>` : ''}
       <div class="party-card-stats">
         <div class="party-stat barrier">
@@ -304,3 +318,127 @@ function initFirebase(uuid) {
   initLogsPoller(uuid);      // polling 5s — надёжно + офлайн-recovery
   initPartyPanel(uuid);      // polling 10s — панель пати
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// TRADE SYSTEM
+// ═══════════════════════════════════════════════════════════════════════
+// /trades/{tradeId} → {
+//   from: uuid, fromName: str,
+//   to: uuid,
+//   items: [{name, desc}],
+//   senderRowIds: [int],   // equip row ids at sender — removed on accept
+//   status: 'pending' | 'accepted' | 'rejected'
+// }
+
+const _pendingTrades = new Set(); // tradeIds we've shown cards for
+let _tradesInterval = null;
+
+function initTradesPoller(uuid) {
+  if (_tradesInterval) clearInterval(_tradesInterval);
+  pollTrades(uuid);
+  _tradesInterval = setInterval(() => pollTrades(uuid), 5000);
+}
+
+async function pollTrades(uuid) {
+  const processed = _getProcessedTrades(uuid);
+  let changed = false;
+  const all = await fbGet('trades');
+  if (!all) return;
+
+  Object.entries(all).forEach(([tid, trade]) => {
+    if (!trade) return;
+
+    // Incoming: we are the recipient, status=pending, not yet shown
+    if (trade.to === uuid && trade.status === 'pending' && !_pendingTrades.has(tid)) {
+      _pendingTrades.add(tid);
+      if (typeof showTradeCard === 'function') {
+        showTradeCard(tid, trade.fromName || 'Игрок', trade.items || []);
+      }
+    }
+
+    // Outgoing: we sent it, status changed
+    if (trade.from === uuid && trade.status === 'accepted' && !processed.has('out_' + tid)) {
+      processed.add('out_' + tid);
+      changed = true;
+    
+      showFbNotification(`${trade.toName||'Игрок'} принял предмет(ы)`, 'item');
+    
+      if (typeof onTradeAccepted === 'function' && trade.senderRowIds) {
+        onTradeAccepted(trade.senderRowIds);
+      }
+    }
+
+    if (trade.from === uuid && trade.status === 'rejected' && !_pendingTrades.has('rej_'+tid)) {
+      _pendingTrades.add('rej_'+tid);
+      showFbNotification(`${trade.toName||'Игрок'} отказал(а)`, 'warn');
+    }
+    // Получатель: трейд принят → добавить предметы
+    if (trade.to === uuid && trade.status === 'accepted' && !processed.has(tid)) {
+      processed.add(tid);
+      changed = true;
+    
+      if (typeof addEquip === 'function' && Array.isArray(trade.items)) {
+        trade.items.forEach(item => addEquip(item));
+        
+        if (typeof scheduleSave === 'function') scheduleSave();
+      }
+    
+      showFbNotification(`Вы получили предмет(ы)`, 'item');
+    }
+    
+  });
+  
+  if (changed) _saveProcessedTrades(uuid, processed);
+}
+function _getTradesKey(uuid) {
+  return 'froyskyy_processed_trades_' + uuid;
+}
+
+function _getProcessedTrades(uuid) {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(_getTradesKey(uuid))) || []);
+  } catch(_) {
+    return new Set();
+  }
+}
+
+function _saveProcessedTrades(uuid, set) {
+  try {
+    localStorage.setItem(_getTradesKey(uuid), JSON.stringify([...set]));
+  } catch(_) {}
+}
+async function sendTradeOffer(fromUuid, toUuid, items, senderRowIds) {
+  if (!fromUuid || !toUuid || !items?.length) {
+    console.warn('Invalid trade payload');
+    return;
+  }
+
+  const tradeId = 'tr_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+
+  const card = document.querySelector(`.party-card[data-uuid="${toUuid}"]`);
+  const toName = card?.dataset.name || 'Игрок';
+
+  const fromName = document.querySelector('.info-value[contenteditable]')?.textContent?.trim() || 'Игрок';
+
+  await fbSet(`trades/${tradeId}`, {
+    from: fromUuid, fromName,
+    to:   toUuid,   toName,
+    items, senderRowIds,
+    status: 'pending',
+    createdAt: Date.now(),
+  });
+
+  showFbNotification(`Предложение отправлено ${toName}`, 'info');
+}
+
+async function respondToTrade(tradeId, status) {
+  await fbUpdate(`trades/${tradeId}`, { status });
+}
+
+// Hook into initFirebase
+const _origInitFirebase = initFirebase;
+// eslint-disable-next-line no-global-assign
+initFirebase = function(uuid) {
+  _origInitFirebase(uuid);
+  initTradesPoller(uuid);
+};
