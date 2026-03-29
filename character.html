@@ -45,6 +45,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .barrier .hp-box.filled{background:var(--barrier);box-shadow:0 0 6px rgba(91,141,238,.5);}
 .life .hp-box.filled{background:var(--life);box-shadow:0 0 6px rgba(224,92,92,.5);}
 .main-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+@media(max-width:700px){.main-grid{grid-template-columns:1fr;}}
 .magic-panel{background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;}
 .panel-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--gold-l);margin-bottom:4px;}
 .panel-sub{font-size:10px;color:var(--text-dim);font-style:italic;margin-bottom:12px;}
@@ -634,8 +635,7 @@ function onAdjToggle(id,checked){
   } else {
     adjActive.delete(id);
   }
-  refreshAdjVisuals();refreshSkillsPanel();
-  scheduleSave();
+  refreshAdjVisuals();refreshSkillsPanel();renderBuildPanel();scheduleSave();
 }
 
 function checkAdj(){
