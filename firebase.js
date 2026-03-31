@@ -24,15 +24,6 @@ async function fbSet(path, value) {
     });
   } catch(e) {}
 }
-async function fbUpdate(path, value) {
-  try {
-    await fetch(`${FB_BASE}/${path}.json`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(value),
-    });
-  } catch(e) {}
-}
 
 // ── SSE listener (Firebase streaming) ────────────────────────────────────────
 // Используется только для пати — мгновенная реакция
@@ -323,14 +314,18 @@ function initFirebase(uuid) {
 // TRADE SYSTEM
 // ═══════════════════════════════════════════════════════════════════════
 // /trades/{tradeId} → {
-//   from: uuid, fromName: str,
-//   to: uuid,
-//   items: [{name, desc}],
-//   senderRowIds: [int],   // equip row ids at sender — removed on accept
-//   status: 'pending' | 'accepted' | 'rejected'
+//   from: uuid, fromName,
+//   to:   uuid, toName,
+//   items: [{name, desc}],      // already removed from sender on send
+//   reagents: {red:N,...},      // already deducted from sender on send
+//   status: 'pending' | 'accepted' | 'rejected' | 'cancelled'
 // }
+//
+// Anti-dupe strategy: items/reagents are deducted from sender immediately
+// on send. If cancelled → returned to sender. If rejected → returned to sender.
+// If accepted → added to receiver. No double-spend possible.
 
-const _pendingTrades = new Set(); // tradeIds we've shown cards for
+const _pendingTrades = new Set(); // tradeIds we've processed
 let _tradesInterval = null;
 
 function initTradesPoller(uuid) {
@@ -340,99 +335,117 @@ function initTradesPoller(uuid) {
 }
 
 async function pollTrades(uuid) {
-  const processed = _getProcessedTrades(uuid);
-  let changed = false;
   const all = await fbGet('trades');
-  if (!all) return;
+  if (!all || typeof all !== 'object') return;
 
   Object.entries(all).forEach(([tid, trade]) => {
     if (!trade) return;
 
-    // Incoming: we are the recipient, status=pending, not yet shown
-    if (trade.to === uuid && trade.status === 'pending' && !_pendingTrades.has(tid)) {
-      _pendingTrades.add(tid);
-      if (typeof showTradeCard === 'function') {
-        showTradeCard(tid, trade.fromName || 'Игрок', trade.items || []);
+    // ── INCOMING: we are the recipient ───────────────────────────────────
+    if (trade.to === uuid) {
+      // New pending offer we haven't shown yet
+      if (trade.status === 'pending' && !_pendingTrades.has('shown_'+tid)) {
+        _pendingTrades.add('shown_'+tid);
+        if (typeof showTradeCard === 'function') {
+          showTradeCard(tid, trade.fromName || 'Игрок', trade.items || [], trade.reagents || {});
+        }
+      }
+      // Offer cancelled while card is still showing
+      if (trade.status === 'cancelled' && _pendingTrades.has('shown_'+tid) && !_pendingTrades.has('cancelled_notif_'+tid)) {
+        _pendingTrades.add('cancelled_notif_'+tid);
+        // Dismiss card
+        if (typeof removeTradeCard === 'function') removeTradeCard(tid);
+        showFbNotification(`${trade.fromName||'Игрок'} отменил(а) передачу`, 'warn');
       }
     }
 
-    // Outgoing: we sent it, status changed
-    if (trade.from === uuid && trade.status === 'accepted' && !processed.has('out_' + tid)) {
-      processed.add('out_' + tid);
-      changed = true;
-    
-      showFbNotification(`${trade.toName||'Игрок'} принял предмет(ы)`, 'item');
-    
-      if (typeof onTradeAccepted === 'function' && trade.senderRowIds) {
-        onTradeAccepted(trade.senderRowIds);
+    // ── OUTGOING: we sent it ─────────────────────────────────────────────
+    if (trade.from === uuid) {
+      if (trade.status === 'accepted' && !_pendingTrades.has('done_'+tid)) {
+        _pendingTrades.add('done_'+tid);
+        const lines = _buildTradeSummary(trade.items, trade.reagents);
+        showFbNotification(`${trade.toName||'Игрок'} принял: ${lines}`, 'item');
+        // Items already removed from inventory on send — nothing more to do
+        if (typeof onTradeAccepted === 'function') onTradeAccepted();
       }
-    }
 
-    if (trade.from === uuid && trade.status === 'rejected' && !_pendingTrades.has('rej_'+tid)) {
-      _pendingTrades.add('rej_'+tid);
-      showFbNotification(`${trade.toName||'Игрок'} отказал(а)`, 'warn');
-    }
-    // Получатель: трейд принят → добавить предметы
-    if (trade.to === uuid && trade.status === 'accepted' && !processed.has(tid)) {
-      processed.add(tid);
-      changed = true;
-    
-      if (typeof addEquip === 'function' && Array.isArray(trade.items)) {
-        trade.items.forEach(item => addEquip(item));
-        
-        if (typeof scheduleSave === 'function') scheduleSave();
+      if (trade.status === 'rejected' && !_pendingTrades.has('rej_'+tid)) {
+        _pendingTrades.add('rej_'+tid);
+        showFbNotification(`${trade.toName||'Игрок'} отказал(а) — предметы возвращены`, 'warn');
+        // Return items and reagents to sender
+        if (typeof onTradeCancelled === 'function') {
+          onTradeCancelled(trade.items || [], trade.reagents || {});
+        }
       }
-    
-      showFbNotification(`Вы получили предмет(ы)`, 'item');
     }
-    
   });
-  
-  if (changed) _saveProcessedTrades(uuid, processed);
-}
-function _getTradesKey(uuid) {
-  return 'froyskyy_processed_trades_' + uuid;
 }
 
-function _getProcessedTrades(uuid) {
-  try {
-    return new Set(JSON.parse(localStorage.getItem(_getTradesKey(uuid))) || []);
-  } catch(_) {
-    return new Set();
+function _buildTradeSummary(items, reagents) {
+  const parts = [];
+  if (items && items.length) parts.push(items.map(i => i.name).join(', '));
+  if (reagents) {
+    const REAG_NAMES = { red:'🔴', blue:'🔵', green:'🟢', yellow:'🟡' };
+    Object.entries(reagents).forEach(([c, n]) => { if(n) parts.push(`${REAG_NAMES[c]||c}×${n}`); });
   }
+  return parts.join(', ') || '—';
 }
 
-function _saveProcessedTrades(uuid, set) {
-  try {
-    localStorage.setItem(_getTradesKey(uuid), JSON.stringify([...set]));
-  } catch(_) {}
-}
-async function sendTradeOffer(fromUuid, toUuid, items, senderRowIds) {
-  if (!fromUuid || !toUuid || !items?.length) {
-    console.warn('Invalid trade payload');
-    return;
-  }
-
+async function sendTradeOffer(fromUuid, toUuid, items, removedIds, reagents) {
   const tradeId = 'tr_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
-
   const card = document.querySelector(`.party-card[data-uuid="${toUuid}"]`);
   const toName = card?.dataset.name || 'Игрок';
-
   const fromName = document.querySelector('.info-value[contenteditable]')?.textContent?.trim() || 'Игрок';
 
   await fbSet(`trades/${tradeId}`, {
     from: fromUuid, fromName,
     to:   toUuid,   toName,
-    items, senderRowIds,
+    items: items || [],
+    reagents: reagents || {},
     status: 'pending',
     createdAt: Date.now(),
   });
 
-  showFbNotification(`Предложение отправлено ${toName}`, 'info');
+  const summary = _buildTradeSummary(items, reagents);
+  showFbNotification(`Передача отправлена ${toName}: ${summary}`, 'info');
 }
 
 async function respondToTrade(tradeId, status) {
+  // Before accepting/rejecting, check if trade is still pending (not cancelled)
+  const trade = await fbGet(`trades/${tradeId}`);
+  if (!trade) { showFbNotification('Сделка не найдена', 'warn'); return; }
+  if (trade.status === 'cancelled') {
+    showFbNotification('Отправитель отменил передачу', 'warn');
+    if (typeof removeTradeCard === 'function') removeTradeCard(tradeId);
+    return;
+  }
+  if (trade.status !== 'pending') return; // already handled
+
   await fbUpdate(`trades/${tradeId}`, { status });
+
+  if (status === 'accepted') {
+    // Add items to recipient's inventory
+    if (trade.items && trade.items.length && typeof addEquip === 'function') {
+      trade.items.forEach(it => addEquip({ name: it.name, desc: it.desc }));
+    }
+    // Add reagents to recipient
+    if (trade.reagents && typeof applyReagentDelta === 'function') {
+      applyReagentDelta(trade.reagents);
+    }
+    if (typeof scheduleSave === 'function') scheduleSave();
+    const summary = _buildTradeSummary(trade.items, trade.reagents);
+    showFbNotification(`Получено от ${trade.fromName||'игрока'}: ${summary}`, 'item');
+  }
+}
+
+async function cancelTradeOffer(tradeId) {
+  const trade = await fbGet(`trades/${tradeId}`);
+  if (!trade || trade.status !== 'pending') return;
+  await fbUpdate(`trades/${tradeId}`, { status: 'cancelled' });
+  // Return to sender
+  if (typeof onTradeCancelled === 'function') {
+    onTradeCancelled(trade.items || [], trade.reagents || {});
+  }
 }
 
 // Hook into initFirebase

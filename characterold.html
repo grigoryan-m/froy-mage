@@ -39,22 +39,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .hp-max-val::-webkit-inner-spin-button,.hp-max-val::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .hp-max-val[type=number]{-moz-appearance:textfield;}
 .barrier .hp-max-val{color:var(--barrier);}.life .hp-max-val{color:var(--life);}
-/* Current HP field */
-.hp-cur-box{display:flex;flex-direction:column;align-items:center;gap:2px;margin-right:8px;}
-.hp-cur-label{font-size:7px;color:var(--text-dim);letter-spacing:1px;font-family:'Cinzel',serif;}
-.hp-cur-val{font-family:'Cinzel',serif;font-size:13px;width:40px;text-align:center;border:none;border-bottom:1px solid var(--line);background:transparent;outline:none;padding:0 2px;transition:border-color .2s;}
-.hp-cur-val:focus{border-bottom-color:var(--gold);}
-.hp-cur-val::-webkit-inner-spin-button,.hp-cur-val::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
-.hp-cur-val[type=number]{-moz-appearance:textfield;}
-.barrier .hp-cur-val{color:var(--barrier);}.life .hp-cur-val{color:var(--life);}
-/* Clickable mana badge */
-.skill-mana{font-family:'Cinzel',serif;font-size:9px;padding:2px 7px;border-radius:10px;border:1px solid var(--gold-d);color:var(--gold);background:rgba(201,168,76,.07);flex-shrink:0;cursor:pointer;transition:background .15s,border-color .15s;user-select:none;}
-.skill-mana:hover{background:rgba(201,168,76,.18);border-color:var(--gold);}
-.skill-mana.no-mana{border-color:#e05c5c!important;color:#e05c5c!important;background:rgba(224,92,92,.12)!important;animation:mana-shake .4s ease;}
-@keyframes mana-shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-4px);}40%{transform:translateX(4px);}60%{transform:translateX(-3px);}80%{transform:translateX(3px);}}
-.build-ult-mana{font-family:'Cinzel',serif;font-size:9px;padding:2px 8px;border-radius:10px;border:1px solid var(--gold-d);color:var(--gold);flex-shrink:0;cursor:pointer;transition:background .15s,border-color .15s;user-select:none;}
-.build-ult-mana:hover{background:rgba(201,168,76,.18);border-color:var(--gold);}
-.build-ult-mana.no-mana{border-color:#e05c5c!important;color:#e05c5c!important;background:rgba(224,92,92,.12)!important;animation:mana-shake .4s ease;}
 .hp-formula{font-size:10px;color:var(--text-dim);font-style:italic;margin-bottom:8px;}
 .hp-boxes{display:flex;flex-wrap:wrap;gap:4px;}
 .hp-box{width:16px;height:16px;border-radius:3px;background:var(--spark-off);cursor:pointer;transition:background .15s,box-shadow .15s;flex-shrink:0;}
@@ -249,17 +233,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .mbtn-send{border-color:#4cbb8a;color:#4cbb8a;background:rgba(76,187,138,.1);}
 .mbtn-send:hover{background:rgba(76,187,138,.22);}
 .mbtn-send:disabled{opacity:.35;cursor:not-allowed;}
-/* Modal reagent row */
-.modal-reagent{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:56px;}
-.modal-reagent-icon{font-size:22px;line-height:1;}
-.modal-reagent-inp{width:52px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;color:var(--text);font-family:'Cinzel',serif;font-size:14px;text-align:center;padding:4px 2px;outline:none;transition:border-color .2s;}
-.modal-reagent-inp:focus{border-color:var(--gold);}
-.modal-reagent-inp::-webkit-inner-spin-button,.modal-reagent-inp::-webkit-outer-spin-button{-webkit-appearance:none;}
-.modal-reagent-inp[type=number]{-moz-appearance:textfield;}
-.modal-reagent-label{font-family:'Cinzel',serif;font-size:6.5px;letter-spacing:1px;color:var(--text-dim);text-align:center;}
-.modal-reagent-max{font-size:9px;color:var(--text-dim);}
-/* Pending trade in inbox */
-.trade-pending-tag{font-family:'Cinzel',serif;font-size:7px;letter-spacing:1px;padding:1px 6px;border-radius:8px;border:1px solid #e8934c44;color:#e8934c;background:#e8934c0d;}
 /* INCOMING TRADE CARDS */
 #trade-inbox{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:3000;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none;width:min(380px,92vw);}
 .trade-card{background:var(--panel);border:1px solid #4cbb8a;border-radius:10px;padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,.55);pointer-events:auto;width:100%;animation:tcSlide .3s ease;}
@@ -339,22 +312,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   <div class="hp-block barrier">
     <div class="hp-header">
       <div><div class="hp-title">⬡ БАРЬЕР</div><div class="hp-formula">10 + (Защита × 2) • восст. после отдыха</div></div>
-      <div style="display:flex;align-items:flex-end;gap:6px;">
-        <div class="hp-cur-box barrier"><div class="hp-cur-label">ТЕК.</div><input class="hp-cur-val" id="barrier-cur" type="number" min="0" placeholder="0" title="Текущий барьер"></div>
-        <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--text-dim);padding-bottom:2px;">/</div>
-        <div class="hp-max-box"><div class="hp-max-label">МАКС / 20</div><input class="hp-max-val" id="barrier-max" type="number" min="0" max="20" placeholder="—" title="Максимум барьера (до 20)"></div>
-      </div>
+      <div class="hp-max-box"><div class="hp-max-label">МАКС / 20</div><input class="hp-max-val" id="barrier-max" type="number" min="0" max="20" placeholder="—" title="Максимум барьера (до 20)"></div>
     </div>
     <div class="hp-boxes" id="barrier-boxes"></div>
   </div>
   <div class="hp-block life">
     <div class="hp-header">
       <div><div class="hp-title">♥ ЖИЗНЬ</div><div class="hp-formula">6 + (Обелиски Тела × 3) • медленно</div></div>
-      <div style="display:flex;align-items:flex-end;gap:6px;">
-        <div class="hp-cur-box life"><div class="hp-cur-label">ТЕК.</div><input class="hp-cur-val" id="life-cur" type="number" min="0" placeholder="0" title="Текущая жизнь"></div>
-        <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--text-dim);padding-bottom:2px;">/</div>
-        <div class="hp-max-box"><div class="hp-max-label">МАКС / 30</div><input class="hp-max-val" id="life-max" type="number" min="0" max="30" placeholder="—" title="Максимум жизни (до 30)"></div>
-      </div>
+      <div class="hp-max-box"><div class="hp-max-label">МАКС / 30</div><input class="hp-max-val" id="life-max" type="number" min="0" max="30" placeholder="—" title="Максимум жизни (до 30)"></div>
     </div>
     <div class="hp-boxes" id="life-boxes"></div>
   </div>
@@ -480,23 +445,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <!-- SEND ITEMS MODAL -->
 <div class="modal-overlay hidden" id="send-modal">
   <div class="modal-box">
-    <div class="modal-title">Передать</div>
-    <div class="modal-sub" id="send-modal-sub">Выбери получателя и что отправить</div>
-    <!-- target selector placeholder — filled by JS -->
-    <div id="send-modal-target"></div>
-    <!-- items section -->
-    <div id="send-modal-items-wrap">
-      <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-dim);margin-bottom:6px;">ПРЕДМЕТЫ</div>
-      <div class="modal-items" id="send-modal-items"><div style="font-size:12px;color:var(--text-dim);font-style:italic;padding:8px 0;">Снаряжение пусто</div></div>
-    </div>
-    <!-- reagents section -->
-    <div id="send-modal-reagents-wrap">
-      <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px;">РЕАГЕНТЫ</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;" id="send-modal-reagents"></div>
-    </div>
+    <div class="modal-title">Передать предмет</div>
+    <div class="modal-sub" id="send-modal-sub">Выбери предметы для передачи</div>
+    <div class="modal-items" id="send-modal-items"></div>
     <div class="modal-actions">
       <button class="mbtn mbtn-cancel" onclick="closeSendModal()">Отмена</button>
-      <button class="mbtn mbtn-send" id="send-modal-btn" onclick="confirmSend()">Отправить →</button>
+      <button class="mbtn mbtn-send" id="send-modal-btn" disabled onclick="confirmSend()">Отправить →</button>
     </div>
   </div>
 </div>
@@ -675,24 +629,9 @@ function buildSparks(){
     for(let p=0;p<5;p++){
       const sq=document.createElement('div');sq.className='spark-sq'+(p<sparks[el.id]?' on':'');sq.style.borderColor=el.color+'66';
       sq.addEventListener('click',()=>{
-        const oldSpark = sparks[el.id];
         sparks[el.id]=sparks[el.id]===p+1?p:p+1;
         document.querySelectorAll(`[data-el-id="${el.id}"] .spark-sq`).forEach((s,i)=>s.classList.toggle('on',i<sparks[el.id]));
         const cnt=document.querySelector(`[data-counter="${el.id}"]`);if(cnt)cnt.textContent=sparks[el.id]+' / 5';
-        // Защита: автоматически пересчитать барьер (+2 за искру)
-        if(el.id==='def'){
-          const bm=document.getElementById('barrier-max');
-          if(bm){
-            const delta=sparks[el.id]-oldSpark;
-            const curMax=parseInt(bm.value)||10;
-            const newMax=Math.min(20,Math.max(0,curMax+delta*2));
-            bm.value=newMax;
-            // Заполнить добавленные ячейки
-            if(delta>0) hpFill['barrier-boxes']=Math.min(newMax,hpFill['barrier-boxes']+delta*2);
-            else hpFill['barrier-boxes']=Math.min(newMax,hpFill['barrier-boxes']);
-            onMaxChange('barrier-boxes',newMax,20);
-          }
-        }
         checkAdj();refreshSkillsPanel();scheduleSave();
       });
       wrap.appendChild(sq);
@@ -828,30 +767,12 @@ function buildHpBoxes(cid,n){
   const el=document.getElementById(cid);el.innerHTML='';
   for(let i=0;i<n;i++){
     const b=document.createElement('div');b.className='hp-box'+(i<hpFill[cid]?' filled':'');
-    b.addEventListener('click',()=>{
-      hpFill[cid]=hpFill[cid]===i+1?i:i+1;
-      refreshHp(cid);
-      syncHpCurField(cid);
-      scheduleSave();
-    });
+    b.addEventListener('click',()=>{hpFill[cid]=hpFill[cid]===i+1?i:i+1;refreshHp(cid);scheduleSave();});
     el.appendChild(b);
   }
-  syncHpCurField(cid);
 }
-function refreshHp(cid){
-  document.querySelectorAll('#'+cid+' .hp-box').forEach((b,i)=>b.classList.toggle('filled',i<hpFill[cid]));
-}
-function syncHpCurField(cid){
-  // Update the ТЕК. input to match filled boxes
-  const inputId = cid==='barrier-boxes'?'barrier-cur':'life-cur';
-  const inp=document.getElementById(inputId);
-  if(inp) inp.value = hpFill[cid]||0;
-}
-function onMaxChange(cid,val,cap){
-  let n=Math.min(Math.max(typeof val==='number'?val:(parseInt(val)||0),0),cap);
-  if(hpFill[cid]>n)hpFill[cid]=n;
-  buildHpBoxes(cid,n);
-}
+function refreshHp(cid){document.querySelectorAll('#'+cid+' .hp-box').forEach((b,i)=>b.classList.toggle('filled',i<hpFill[cid]));}
+function onMaxChange(cid,val,cap){let n=Math.min(Math.max(typeof val==='number'?val:(parseInt(val)||0),0),cap);if(hpFill[cid]>n)hpFill[cid]=n;buildHpBoxes(cid,n);}
 
 // ── OBELISKS ─────────────────────────────────────────────────────────────────
 function buildObelisks(){
@@ -864,53 +785,13 @@ function buildObelisks(){
     for(let i=0;i<8;i++){
       const cb=document.createElement('div');cb.className='ob-check'+(i<obFill[ob.id]?' filled':'');cb.style.borderColor=ob.color+'55';
       if(i<obFill[ob.id]){cb.style.background=ob.color;cb.style.boxShadow=`0 0 6px ${ob.color}88`;}
-      cb.addEventListener('click',()=>{
-        const oldVal=obFill[ob.id];
-        obFill[ob.id]=obFill[ob.id]===i+1?i:i+1;
-        refreshOb(ob);updateObTotal();
-        applyObeliskEffect(ob.id, obFill[ob.id], oldVal);
-        scheduleSave();
-      });
+      cb.addEventListener('click',()=>{obFill[ob.id]=obFill[ob.id]===i+1?i:i+1;refreshOb(ob);updateObTotal();scheduleSave();});
       checks.appendChild(cb);
     }
   });
 }
 function refreshOb(ob){document.querySelectorAll('#ob-checks-'+ob.id+' .ob-check').forEach((cb,i)=>{const on=i<obFill[ob.id];cb.classList.toggle('filled',on);cb.style.background=on?ob.color:'';cb.style.boxShadow=on?`0 0 6px ${ob.color}88`:'';});}
 function updateObTotal(){document.getElementById('ob-total').textContent=OBELISKS.reduce((s,ob)=>s+obFill[ob.id],0);}
-
-// Применить автоматический эффект обелиска при изменении его значения
-function applyObeliskEffect(obId, newVal, oldVal){
-  const delta = newVal - oldVal;
-  if(delta === 0) return;
-
-  if(obId === 'mana'){
-    // +5 к максимуму маны за каждый новый обелиск
-    const mm = document.getElementById('mana-max-inp');
-    if(mm){
-      const cur = parseInt(mm.value)||20; // дефолт 20 если пусто
-      mm.value = Math.max(0, cur + delta*5);
-      scheduleSave();
-    }
-  }
-
-  if(obId === 'body'){
-    // +3 к максимуму жизни за каждый новый обелиск, и заполнить добавленные ячейки
-    const lm = document.getElementById('life-max');
-    if(lm){
-      const curMax = parseInt(lm.value)||6; // дефолт 6
-      const newMax = Math.min(30, Math.max(0, curMax + delta*3));
-      lm.value = newMax;
-      // Заполнить новые ячейки если добавляем
-      if(delta > 0){
-        hpFill['life-boxes'] = Math.min(newMax, hpFill['life-boxes'] + delta*3);
-      } else {
-        hpFill['life-boxes'] = Math.min(newMax, hpFill['life-boxes']);
-      }
-      onMaxChange('life-boxes', newMax, 30);
-      scheduleSave();
-    }
-  }
-}
 
 // ── DICE ─────────────────────────────────────────────────────────────────────
 function addDie(n){dicePool[n]=(dicePool[n]||0)+1;updateDiceUI();}
@@ -1240,7 +1121,6 @@ function renderBuildPanel() {
       mana.className = 'build-ult-mana';
       mana.style.cssText = `border-color:${c1}55;color:${c1};background:${c1}0a;`;
       mana.textContent = '⟡ ' + build.ult_mana;
-      makeManaBadgeClickable(mana, build.ult_mana);
       hdr.appendChild(mana);
     }
 
@@ -1323,7 +1203,6 @@ function renderSkillsTab(tab) {
       const mb = document.createElement('span');
       mb.className = 'skill-mana';
       mb.textContent = '⟡ ' + sk.mana;
-      makeManaBadgeClickable(mb, sk.mana);
       header.appendChild(mb);
     }
 
@@ -1422,7 +1301,6 @@ function renderAdjSkills(grid) {
         const mb = document.createElement('span');
         mb.className = 'skill-mana';
         mb.textContent = '⟡ ' + sk.mana;
-        makeManaBadgeClickable(mb, sk.mana);
         hdr.appendChild(mb);
       }
 
@@ -1450,39 +1328,6 @@ function renderAdjSkills(grid) {
 
       grid.appendChild(card);
     });
-  });
-}
-
-// ── MANA SPEND ───────────────────────────────────────────────────────────────
-// Парсим строку маны: "10+" → 10, "5" → 5
-function parseManaStr(str){
-  if(!str) return 0;
-  return parseInt(String(str).replace(/\D.*$/, '')) || 0; // берём только ведущие цифры
-}
-
-function spendMana(badgeEl, manaStr){
-  const cost = parseManaStr(manaStr);
-  if(!cost) return;
-  const inp = document.getElementById('mana-cur');
-  if(!inp) return;
-  const cur = parseInt(inp.value)||0;
-  if(cur < cost){
-    // Not enough mana — shake + red
-    badgeEl.classList.remove('no-mana');
-    void badgeEl.offsetWidth; // reflow to restart animation
-    badgeEl.classList.add('no-mana');
-    setTimeout(()=>badgeEl.classList.remove('no-mana'), 600);
-    return;
-  }
-  inp.value = cur - cost;
-  scheduleSave();
-}
-
-function makeManaBadgeClickable(badgeEl, manaStr){
-  badgeEl.title = `Потратить ${parseManaStr(manaStr)} маны`;
-  badgeEl.addEventListener('click', e=>{
-    e.stopPropagation();
-    spendMana(badgeEl, manaStr);
   });
 }
 
@@ -1585,12 +1430,12 @@ function _openItemPicker(preselectedRowId) {
   const modal    = document.getElementById('send-modal');
   const subEl    = document.getElementById('send-modal-sub');
   const itemsEl  = document.getElementById('send-modal-items');
-  const targetEl = document.getElementById('send-modal-target');
+  const sendBtn  = document.getElementById('send-modal-btn');
 
   subEl.textContent = `Кому: ${_sendTargetName}`;
+  itemsEl.innerHTML = '';
 
-  // Target selector (multiple party members)
-  targetEl.innerHTML = '';
+  // Build party target selector if multiple members
   const panel = document.getElementById('party-members');
   const cards = [...(panel?.querySelectorAll('.party-card:not(.party-me)') || [])];
   if (cards.length > 1) {
@@ -1608,64 +1453,42 @@ function _openItemPicker(preselectedRowId) {
       _sendTargetName = sel.options[sel.selectedIndex].text;
       subEl.textContent = `Кому: ${_sendTargetName}`;
     };
-    targetEl.appendChild(sel);
+    itemsEl.appendChild(sel);
   }
 
-  // Items list
-  itemsEl.innerHTML = '';
+  // List all equip items
   const rows = [...document.querySelectorAll('.equip-row')];
-  if (!rows.length) {
-    itemsEl.innerHTML = '<div style="font-size:12px;color:var(--text-dim);font-style:italic;padding:8px 0;">Снаряжение пусто</div>';
-  } else {
-    rows.forEach(row => {
-      const rid = parseInt(row.id.replace('equip-', ''));
-      const cells = row.querySelectorAll('.equip-cell');
-      const name  = cells[0]?.innerText?.trim() || '';
-      const desc  = cells[1]?.innerText?.trim() || '';
-      if (!name) return;
+  if (!rows.length) { showFbNotification('В снаряжении нет предметов', 'info'); return; }
 
-      const item = document.createElement('div');
-      item.className = 'modal-item' + (_sendSelectedIds.has(rid) ? ' sel' : '');
-      item.dataset.rid = rid;
-      item.innerHTML = `<div class="modal-check">${_sendSelectedIds.has(rid)?'✓':''}</div>
-        <div class="modal-item-name">${escHtml(name)}</div>
-        ${desc ? `<div class="modal-item-desc">${escHtml(desc)}</div>` : ''}`;
-      item.onclick = () => {
-        if (_sendSelectedIds.has(rid)) {
-          _sendSelectedIds.delete(rid);
-          item.classList.remove('sel');
-          item.querySelector('.modal-check').textContent = '';
-        } else {
-          _sendSelectedIds.add(rid);
-          item.classList.add('sel');
-          item.querySelector('.modal-check').textContent = '✓';
-        }
-      };
-      itemsEl.appendChild(item);
-    });
-  }
+  rows.forEach(row => {
+    const rid = parseInt(row.id.replace('equip-', ''));
+    const cells = row.querySelectorAll('.equip-cell');
+    const name  = cells[0]?.innerText?.trim() || '';
+    const desc  = cells[1]?.innerText?.trim() || '';
+    if (!name) return;
 
-  // Reagents
-  const reagEl = document.getElementById('send-modal-reagents');
-  reagEl.innerHTML = '';
-  const REAG_DEFS = [
-    {id:'red',   icon:'🔴', label:'КРАСНЫЙ'},
-    {id:'blue',  icon:'🔵', label:'СИНИЙ'},
-    {id:'green', icon:'🟢', label:'ЗЕЛЁНЫЙ'},
-    {id:'yellow',icon:'🟡', label:'ЖЁЛТЫЙ'},
-  ];
-  REAG_DEFS.forEach(r => {
-    const have = parseInt(document.getElementById('reagent-'+r.id)?.value)||0;
-    const wrap = document.createElement('div');
-    wrap.className = 'modal-reagent';
-    wrap.innerHTML = `
-      <div class="modal-reagent-icon">${r.icon}</div>
-      <input class="modal-reagent-inp" id="send-reag-${r.id}" type="number" min="0" max="${have}" value="0" placeholder="0">
-      <div class="modal-reagent-label">${r.label}</div>
-      <div class="modal-reagent-max">/ ${have}</div>`;
-    reagEl.appendChild(wrap);
+    const item = document.createElement('div');
+    item.className = 'modal-item' + (_sendSelectedIds.has(rid) ? ' sel' : '');
+    item.dataset.rid = rid;
+    item.innerHTML = `<div class="modal-check">${_sendSelectedIds.has(rid)?'✓':''}</div>
+      <div class="modal-item-name">${escHtml(name)}</div>
+      ${desc ? `<div class="modal-item-desc">${escHtml(desc)}</div>` : ''}`;
+    item.onclick = () => {
+      if (_sendSelectedIds.has(rid)) {
+        _sendSelectedIds.delete(rid);
+        item.classList.remove('sel');
+        item.querySelector('.modal-check').textContent = '';
+      } else {
+        _sendSelectedIds.add(rid);
+        item.classList.add('sel');
+        item.querySelector('.modal-check').textContent = '✓';
+      }
+      sendBtn.disabled = _sendSelectedIds.size === 0;
+    };
+    itemsEl.appendChild(item);
   });
 
+  sendBtn.disabled = _sendSelectedIds.size === 0;
   modal.classList.remove('hidden');
 }
 
@@ -1676,113 +1499,50 @@ function closeSendModal() {
 }
 
 async function confirmSend() {
-  if (!_sendTargetUuid) return;
+  if (!_sendTargetUuid || !_sendSelectedIds.size) return;
+  const btn = document.getElementById('send-modal-btn');
+  btn.disabled = true; btn.textContent = 'Отправляю...';
 
-  // Collect items
   const items = [];
-  const removedIds = [];
   _sendSelectedIds.forEach(rid => {
     const row = document.getElementById('equip-'+rid);
     if (!row) return;
     const cells = row.querySelectorAll('.equip-cell');
     items.push({ name: cells[0]?.innerText?.trim()||'', desc: cells[1]?.innerText?.trim()||'' });
-    removedIds.push(rid);
   });
-
-  // Collect reagents
-  const reagentDelta = {};
-  const REAG_IDS = ['red','blue','green','yellow'];
-  REAG_IDS.forEach(c => {
-    const inp = document.getElementById('send-reag-'+c);
-    const have = parseInt(document.getElementById('reagent-'+c)?.value)||0;
-    const amount = Math.min(parseInt(inp?.value)||0, have);
-    if(amount > 0) reagentDelta[c] = amount;
-  });
-
-  // Must send at least something
-  if (!items.length && !Object.keys(reagentDelta).length) {
-    showFbNotification('Выбери предметы или реагенты для передачи', 'warn');
-    return;
-  }
-
-  const btn = document.getElementById('send-modal-btn');
-  btn.disabled = true; btn.textContent = 'Отправляю...';
-
-  // ── Immediate deduction from sender ──────────────────────────────────────
-  // Remove items from inventory right now
-  removedIds.forEach(rid => removeEquip(rid));
-
-  // Deduct reagents right now
-  REAG_IDS.forEach(c => {
-    if (!reagentDelta[c]) return;
-    const inp = document.getElementById('reagent-'+c);
-    if(inp) inp.value = Math.max(0, (parseInt(inp.value)||0) - reagentDelta[c]);
-  });
-
-  scheduleSave();
 
   if (typeof sendTradeOffer === 'function') {
-    await sendTradeOffer(CHAR_UUID, _sendTargetUuid, items, removedIds, reagentDelta);
+    await sendTradeOffer(CHAR_UUID, _sendTargetUuid, items,
+      // store sender equip row ids so we can remove on accept
+      [..._sendSelectedIds]
+    );
   }
 
   closeSendModal();
-  btn.disabled = false;
   btn.textContent = 'Отправить →';
 }
 
-// Called by firebase.js when sender cancels the trade — return items + reagents
-function onTradeCancelled(items, reagentDelta) {
-  // Return items to inventory
-  if (items && items.length) {
-    items.forEach(it => addEquip({ name: it.name, desc: it.desc }));
-  }
-  // Return reagents
-  if (reagentDelta) {
-    const REAG_IDS = ['red','blue','green','yellow'];
-    REAG_IDS.forEach(c => {
-      if (!reagentDelta[c]) return;
-      const inp = document.getElementById('reagent-'+c);
-      if(inp) inp.value = (parseInt(inp.value)||0) + reagentDelta[c];
-    });
-  }
-  scheduleSave();
-  showFbNotification('Передача отменена — предметы возвращены', 'info');
-}
-
-// Called by firebase.js when trade accepted (items already removed — nothing to do on sender side)
-function onTradeAccepted() {
-  // Items were already removed from inventory when sent — nothing more to remove
+// Called by firebase.js when trade is accepted
+function onTradeAccepted(rowIds) {
+  rowIds.forEach(rid => removeEquip(rid));
   scheduleSave();
 }
 
 // ── TRADE INBOX (incoming offers) ────────────────────────────────────────────
-function showTradeCard(tradeId, senderName, items, reagents) {
+function showTradeCard(tradeId, senderName, items) {
   const inbox = document.getElementById('trade-inbox');
   if (!inbox) return;
-
-  const REAG_ICONS = { red:'🔴', blue:'🔵', green:'🟢', yellow:'🟡' };
-  const REAG_NAMES = { red:'Красный', blue:'Синий', green:'Зелёный', yellow:'Жёлтый' };
-
-  const itemHtml = items.length
-    ? items.map(i => `<li style="font-size:12px;color:var(--text);">${escHtml(i.name)}${i.desc?' <span style="color:var(--text-dim);font-style:italic;">— '+escHtml(i.desc)+'</span>':''}</li>`).join('')
-    : '';
-
-  const reagHtml = reagents && Object.keys(reagents).length
-    ? Object.entries(reagents).filter(([,v])=>v>0)
-        .map(([c,v])=>`<li style="font-size:12px;color:var(--text);">${REAG_ICONS[c]||c} ${REAG_NAMES[c]||c}: <b>×${v}</b></li>`).join('')
-    : '';
-
-  if (!itemHtml && !reagHtml) return;
 
   const card = document.createElement('div');
   card.className = 'trade-card';
   card.dataset.tradeId = tradeId;
+
+  const itemList = items.map(i => `<li style="font-size:12px;color:var(--text);">${escHtml(i.name)}${i.desc?' <span style="color:var(--text-dim);font-style:italic;">— '+escHtml(i.desc)+'</span>':''}</li>`).join('');
+
   card.innerHTML = `
     <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:#4cbb8a;margin-bottom:8px;">ВХОДЯЩАЯ ПЕРЕДАЧА</div>
     <div style="font-size:13px;color:var(--text);margin-bottom:8px;"><b style="color:var(--gold-l);">${escHtml(senderName)}</b> передаёт вам:</div>
-    <ul style="list-style:none;padding:0;margin:0 0 12px;display:flex;flex-direction:column;gap:3px;">
-      ${itemHtml}${reagHtml}
-    </ul>
+    <ul style="list-style:none;padding:0;margin:0 0 12px;display:flex;flex-direction:column;gap:3px;">${itemList}</ul>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
       <button onclick="rejectTrade('${tradeId}')" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;padding:6px 14px;border-radius:5px;border:1px solid var(--line);color:var(--text-dim);background:none;cursor:pointer;">Отказать</button>
       <button onclick="acceptTrade('${tradeId}')" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;padding:6px 14px;border-radius:5px;border:1px solid #4cbb8a;color:#4cbb8a;background:rgba(76,187,138,.1);cursor:pointer;">Принять ✓</button>
